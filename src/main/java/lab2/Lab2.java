@@ -1,21 +1,18 @@
 package lab2;
 
-import com.google.gson.Gson;
-import lombok.SneakyThrows;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static util.FileUtils.extractDataFromJsonInputFile;
 
 public class Lab2 {
 
     public static final String LAB_2_INPUT_FILE_PATH = "src/main/resources/lab2/input.json";
 
     public static void main(String[] args) {
-        TreeNode[] treeNodes = extractDataFromInputFile();
+        var treeNodes = extractDataFromJsonInputFile(LAB_2_INPUT_FILE_PATH, TreeNode[].class);
 
         var resultValues = calculateDecisionValuesForEachNode(treeNodes);
         var maxValue = Collections.max(resultValues);
@@ -45,14 +42,5 @@ public class Lab2 {
         System.out.println(node.toString());
         System.out.println("Result =" + result);
         return result;
-    }
-
-    @SneakyThrows
-    private static TreeNode[] extractDataFromInputFile() {
-        var gson = new Gson();
-        var pathToTheInputFile = Path.of(LAB_2_INPUT_FILE_PATH);
-        var reader = Files.newBufferedReader(pathToTheInputFile);
-
-        return gson.fromJson(reader, TreeNode[].class);
     }
 }

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static util.FileUtils.getInputDataFromFile;
+import static util.FileUtils.getIntegerInputDataFromFile;
 
 public class Lab1_1 {
 
@@ -13,7 +13,7 @@ public class Lab1_1 {
     public static final String UNEXPECTED_VALUES = "unexpected values";
 
     public static void main(String[] args) {
-        var inputData = getInputDataFromFile(LAB_1_INPUT_TXT);
+        var inputData = getIntegerInputDataFromFile(LAB_1_INPUT_TXT);
 
         inputData.forEach(System.out::println);
 

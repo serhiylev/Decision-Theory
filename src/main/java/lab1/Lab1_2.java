@@ -5,14 +5,14 @@ import java.util.List;
 
 import static lab1.Lab1_1.LAB_1_INPUT_TXT;
 import static lab1.Lab1_1.UNEXPECTED_VALUES;
-import static util.FileUtils.getInputDataFromFile;
+import static util.FileUtils.getIntegerInputDataFromFile;
 
 public class Lab1_2 {
 
     public static final double[] lab1Coefficients = {0.5, 0.35, 0.15};
 
     public static void main(String[] args) {
-        var inputData = getInputDataFromFile(LAB_1_INPUT_TXT);
+        var inputData = getIntegerInputDataFromFile(LAB_1_INPUT_TXT);
 
         inputData.forEach(System.out::println);
         System.out.println();
