@@ -14,7 +14,29 @@ public class Lab3 {
 
         calculateWinnerViaCondorcetMethod(dataFromFile);
 
+        calculateWinnerViaBordaMethod(dataFromFile);
 
+    }
+
+    private static void calculateWinnerViaBordaMethod(List<List<String>> dataFromFile) {
+        var pointsPerCandidate = new HashMap<String, Integer>();
+
+        var votes = extractVotes(dataFromFile);
+        var candidateOrders = extractCandidates(dataFromFile);
+
+        for (int i = 0; i < candidateOrders.size(); i++) {
+            int finalI = i;
+            for (int j = 0; j < candidateOrders.get(i).size(); j++) {
+                int finalJ = j;
+                pointsPerCandidate.compute(candidateOrders.get(i).get(j), (key, value) -> value == null ?
+                        votes.get(finalI) * (candidateOrders.get(finalI).size() - (finalJ+1))
+                        : value + (votes.get(finalI) * (candidateOrders.get(finalI).size() - (finalJ+1))));
+            }
+        }
+
+        System.out.println(pointsPerCandidate);
+        var result = pointsPerCandidate.entrySet().stream().max(Map.Entry.comparingByValue()).orElseThrow(() -> new RuntimeException("There is no max value"));
+        System.out.println("result = " + result);
     }
 
     private static void calculateWinnerViaCondorcetMethod(List<List<String>> dataFromFile) {
@@ -40,7 +62,7 @@ public class Lab3 {
         var maxEntry = candidateVotes.entrySet()
                 .stream()
                 .max(Map.Entry.comparingByValue())
-                .orElseThrow(() -> new RuntimeException("There is no biggest value"));
+                .orElseThrow(() -> new RuntimeException("There is no max value"));
 
 
         var checkedValues = new HashSet<String>();
