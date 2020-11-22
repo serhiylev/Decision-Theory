@@ -19,43 +19,39 @@ public class Lab3 {
     }
 
     private static void calculateWinnerViaBordaMethod(List<List<String>> dataFromFile) {
+        System.out.println("\nBorda Method");
+
         var pointsPerCandidate = new HashMap<String, Integer>();
 
         var votes = extractVotes(dataFromFile);
         var candidateOrders = extractCandidates(dataFromFile);
 
         for (int i = 0; i < candidateOrders.size(); i++) {
-            int finalI = i;
-            for (int j = 0; j < candidateOrders.get(i).size(); j++) {
-                int finalJ = j;
-                pointsPerCandidate.compute(candidateOrders.get(i).get(j), (key, value) -> value == null ?
-                        votes.get(finalI) * (candidateOrders.get(finalI).size() - (finalJ+1))
-                        : value + (votes.get(finalI) * (candidateOrders.get(finalI).size() - (finalJ+1))));
+            var currentCandidatesOrder = candidateOrders.get(i);
+            var currentVotes = votes.get(i);
+            for (int j = 0; j < currentCandidatesOrder.size(); j++) {
+                var currentPointsCoefficient = currentCandidatesOrder.size() - (j + 1);
+                var points = currentVotes * currentPointsCoefficient;
+
+                pointsPerCandidate.compute(currentCandidatesOrder.get(j), (key, value) -> value == null ? points : value + points);
             }
         }
 
         System.out.println(pointsPerCandidate);
-        var result = pointsPerCandidate.entrySet().stream().max(Map.Entry.comparingByValue()).orElseThrow(() -> new RuntimeException("There is no max value"));
-        System.out.println("result = " + result);
+        var result = pointsPerCandidate.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .orElseThrow(() -> new RuntimeException("There is no max value"));
+
+        System.out.println("Winner = " + result.getKey());
     }
 
     private static void calculateWinnerViaCondorcetMethod(List<List<String>> dataFromFile) {
-
         System.out.println("Condorcet method");
+
         var votes = extractVotes(dataFromFile);
         var candidateOrders = extractCandidates(dataFromFile);
 
-        var candidateVotes = new HashMap<String, Integer>();
-        for (int i = 0; i < candidateOrders.size(); i++) {
-            int finalI = i;
-            var candidatesOrder = candidateOrders.get(i);
-            for (int j = 0; j < candidatesOrder.size() - 1; j++) {
-                for (int k = j + 1; k < candidatesOrder.size(); k++) {
-                    candidateVotes.compute(candidatesOrder.get(j) + candidatesOrder.get(k),
-                            (key, value) -> value == null ? votes.get(finalI) : value + votes.get(finalI));
-                }
-            }
-        }
+        HashMap<String, Integer> candidateVotes = fillCandidateVotesMap(votes, candidateOrders);
 
         System.out.println(candidateVotes);
 
@@ -65,42 +61,56 @@ public class Lab3 {
                 .orElseThrow(() -> new RuntimeException("There is no max value"));
 
 
-        var checkedValues = new HashSet<String>();
+        var winner = findWinner(candidateVotes, maxEntry.getKey());
 
-        var ifEverythingIsOk = findIfEverythingIsOk(candidateVotes, checkedValues, maxEntry.getKey());
-
-        System.out.println("Result === " + ifEverythingIsOk);
+        System.out.println("Winner = " + winner.toCharArray()[0]);
     }
 
-    // todo rename
-    private static String findIfEverythingIsOk(HashMap<String, Integer> candidateVotes, HashSet<String> checkedValues, String maxEntry) {
+    private static HashMap<String, Integer> fillCandidateVotesMap(List<Integer> votes, List<List<String>> candidateOrders) {
+        var candidateVotes = new HashMap<String, Integer>();
+
+        for (int i = 0; i < candidateOrders.size(); i++) {
+            var candidatesOrder = candidateOrders.get(i);
+            for (int j = 0; j < candidatesOrder.size() - 1; j++) {
+                var currentVotes = votes.get(i);
+                for (int k = j + 1; k < candidatesOrder.size(); k++) {
+                    var currentKey = candidatesOrder.get(j) + candidatesOrder.get(k);
+                    candidateVotes.compute(currentKey, (key, value) -> value == null ? currentVotes : value + currentVotes);
+                }
+            }
+        }
+        return candidateVotes;
+    }
+
+    private static String findWinner(HashMap<String, Integer> candidateVotes, String currentEntry) {
         var valuesToCheck = new ArrayList<String>();
+
         for (String key : candidateVotes.keySet()) {
-            if (key.startsWith(String.valueOf(maxEntry.toCharArray()[0])) && !key.equals(maxEntry)) {
+            var firstLetterOfCurrentEntry = String.valueOf(currentEntry.toCharArray()[0]);
+            if (key.startsWith(firstLetterOfCurrentEntry) && !key.equals(currentEntry)) {
                 valuesToCheck.add(key);
             }
         }
 
-        var allMatch = valuesToCheck.stream().allMatch(value -> value.equals(getCorrectPair(value, candidateVotes)));
+        var currentEntryIsTheBiggest = valuesToCheck.stream()
+                .allMatch(value -> value.equals(getBiggerPair(value, candidateVotes)));
 
-        if (allMatch) {
-            //cool
-            return maxEntry;
+        if (currentEntryIsTheBiggest) {
+            return currentEntry;
         } else {
-            checkedValues.add(maxEntry);
             var notSupportedValue = "";
             for (String value : valuesToCheck) {
-                if (!value.equals(getCorrectPair(value, candidateVotes))) {//todo rewrite
-                    notSupportedValue = getCorrectPair(value, candidateVotes);
-                    //not cool, need to change
+                if (!value.equals(getBiggerPair(value, candidateVotes))) {
+                    notSupportedValue = getBiggerPair(value, candidateVotes);
                 }
             }
-            return findIfEverythingIsOk(candidateVotes, checkedValues, notSupportedValue);
+            return findWinner(candidateVotes, notSupportedValue);
         }
     }
 
-    private static String getCorrectPair(String candidatesPair, HashMap<String, Integer> candidateVotes) {
+    private static String getBiggerPair(String candidatesPair, HashMap<String, Integer> candidateVotes) {
         var reversedKey = new StringBuilder(candidatesPair).reverse().toString();
+
         if (candidateVotes.get(candidatesPair) > candidateVotes.get(reversedKey)) {
             return candidatesPair;
         }
@@ -108,20 +118,23 @@ public class Lab3 {
     }
 
     private static List<List<String>> extractCandidates(List<List<String>> dataFromFile) {
-        //todo validate size each row >= 3
-        return Arrays.asList(
-                Arrays.asList("A", "B", "C"),
-                Arrays.asList("A", "C", "B"),
-                Arrays.asList("C", "B", "A"),
-                Arrays.asList("B", "C", "A"),
-                Arrays.asList("B", "A", "C")
-        );
+        var result = new ArrayList<List<String>>();
+
+        for (List<String> strings : dataFromFile) {
+            var tempList = new ArrayList<String>();
+            for (int j = 1; j < strings.size(); j++) {
+                tempList.add(strings.get(j));
+            }
+            result.add(tempList);
+        }
+        return result;
     }
 
     private static List<Integer> extractVotes(List<List<String>> dataFromFile) {
         var resultList = new ArrayList<Integer>();
-        for (int i = 0; i < dataFromFile.size(); i++) {
-            resultList.add(Integer.valueOf(dataFromFile.get(i).get(0)));
+
+        for (List<String> strings : dataFromFile) {
+            resultList.add(Integer.valueOf(strings.get(0)));
         }
         return resultList;
     }
