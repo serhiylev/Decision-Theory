@@ -1,0 +1,44 @@
+[
+  {
+    "phoneName": "Apple Iphone 11",
+    "price": 800,
+    "year": 2018,
+    "batteryCapacity": 2850,
+    "rating": 9
+  },
+  {
+    "phoneName": "Apple Iphone 12",
+    "price": 1200,
+    "year": 2020,
+    "batteryCapacity": 2850,
+    "rating": 10
+  },
+  {
+    "phoneName": "Samsung s20 ultra",
+    "price": 1150,
+    "year": 2020,
+    "batteryCapacity": 6000,
+    "rating": 10
+  },
+  {
+    "phoneName": "Xiaomi Mi 10 Pro",
+    "price": 900,
+    "year": 2019,
+    "batteryCapacity": 6300,
+    "rating": 8
+  },
+  {
+    "phoneName": "Huawei P40 Pro",
+    "price": 750,
+    "year": 2019,
+    "batteryCapacity": 5000,
+    "rating": 7
+  },
+  {
+    "phoneName": "Sony Xperia 1 XQ-AT52",
+    "price": 1400,
+    "year": 2020,
+    "batteryCapacity": 4000,
+    "rating": 6
+  }
+]
